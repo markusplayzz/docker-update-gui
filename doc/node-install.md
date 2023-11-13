@@ -1,6 +1,6 @@
 # Node Install
 
-## Install `nvm`
+## Prerequisites
 
 - [Install `nvm`](./nvm-install.md)
 
