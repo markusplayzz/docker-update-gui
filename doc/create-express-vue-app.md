@@ -25,7 +25,7 @@ This directory structure is needed:
 - Install required packages: `npm install`
 - (Run vue.js app: `npm run dev`)
 
-## Make `vue.js` accessible in LAN (optional)
+## Make `vue.js` dev-webserver accessible in LAN (optional)
 
 - Edit `client/package.json`
 - In scripts part add `--host` to the dev option: `"dev": "vite --host"`

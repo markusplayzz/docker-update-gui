@@ -10,7 +10,7 @@
 - Use new version: `nvm use INSTALLED_VERSION` (replace INSTALLED VERSION with the LTS version you installed)
 - DONE
 
-## Create a `node` project
+## Create a `node` project (optional)
 
 - Create dir: `mkdir new-app`
 - Move into new dir: `cd new-app`
