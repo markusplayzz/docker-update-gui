@@ -13,7 +13,7 @@
 
 - Install: `npm install pm2 -g`
 - cd into backend directory
-- Add the line `"start": "nodemon ."` in the `scripts` part of your `package.lock` configuration file
+- Add the line `"start": "node ."` in the `scripts` part of your `package.lock` configuration file
 - Run `vue.js` app: `pm2 start "npm start" --name "server"`
 - Now the `express.js-backend` is running in background
 
