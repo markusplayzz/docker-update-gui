@@ -3,21 +3,15 @@
     <nav>
       <RouterLink
         to="/"
-        href=""
-        class="text-xl mr-10 p-1 border-gray-400 text-white hover:text-blue-200 transition-all"
-        :class="window === 'containers' ? 'underline' : 'no-underline'"
+        class="text-xl mr-10 p-1 text-white hover:text-blue-300 transition-all"
+        :class="$route.name === 'home' ? 'underline' : 'no-underline'"
         >Containers</RouterLink
       >
       <RouterLink
         to="/settings"
-        class="text-xl p-1 mr-10 border-gray-400 text-white hover:text-blue-200 transition-all"
-        :class="window === 'settings' ? 'underline' : 'no-underline'"
+        class="text-xl p-1 text-white hover:text-blue-300 transition-all"
+        :class="$route.name === 'settings' ? 'underline' : 'no-underline'"
         >Settings</RouterLink
-      >
-      <RouterLink
-        to="/nf"
-        class="text-xl p-1 border-gray-400 text-white hover:text-blue-200 transition-all"
-        >Not Found</RouterLink
       >
     </nav>
   </header>
@@ -29,9 +23,6 @@ import { RouterLink } from 'vue-router'
 
 <script lang="ts">
 export default {
-  name: 'NavBar',
-  props: {
-    window: String
-  }
+  name: 'NavBar'
 }
 </script>
