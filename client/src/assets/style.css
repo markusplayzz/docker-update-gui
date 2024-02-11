@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  @apply font-sans;
+}
+
 h1 {
-  @apply text-4xl font-medium;
+  @apply text-4xl font-bold mb-3;
+}
+
+h2 {
+  @apply text-3xl font-medium;
+}
+
+label {
+  @apply font-bold text-lg;
 }

@@ -1,7 +1,7 @@
 <template>
-  <h1 class="">Containers</h1>
+  <h1>Containers</h1>
   <div
-    class="min-w-full shadow-lg rounded-lg mt-2 border border-gray-200 p-1 text-lg grid grid-cols-2"
+    class="min-w-full shadow-lg rounded-lg mt-3 border border-gray-200 p-1 text-lg grid grid-cols-2"
   >
     <div>
       <p class="font-bold mb-1">Container Name</p>
