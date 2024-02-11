@@ -1,10 +1,10 @@
 <template>
   <h1>Containers</h1>
   <div
-    class="min-w-full shadow-lg rounded-lg mt-3 border border-gray-200 p-1 text-lg grid grid-cols-2"
+    class="w-full shadow-lg rounded-lg mt-3 border border-gray-200 p-5 text-lg grid grid-cols-2 lg:w-6/12 lg:ml-[25%]"
   >
     <div>
-      <p class="font-bold mb-1">Container Name</p>
+      <p class="font-bold mb-1">Nextcloud AIO</p>
       <p class="text-base">Update available</p>
       <div class="flex justify-start text-base">
         <p class="text-red-600 mr-2">1.0.0</p>
@@ -23,10 +23,10 @@
   </div>
 
   <div
-    class="min-w-full shadow-lg rounded-lg mt-3 border border-gray-200 p-1 text-lg grid grid-cols-2"
+    class="w-full shadow-lg rounded-lg mt-3 border border-gray-200 p-5 text-lg grid grid-cols-2 lg:w-6/12 lg:ml-[25%]"
   >
     <div>
-      <p class="font-bold mb-1">Container Name 2</p>
+      <p class="font-bold mb-1">Bitwarden Password Manager</p>
       <p class="text-base">All updates installed</p>
       <div class="flex justify-start text-base">
         <p class="text-green-600">2.1.0</p>
