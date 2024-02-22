@@ -20,11 +20,18 @@ app.get('//containers', async (req, res) => {
             privateKeyPath: '/home/markus/.ssh/id_rsa'
         })
         .then(function() {
-            ssh.execCommand('docker container ls -a --format  \'{{ json . }}\'', { cwd: '.'
+            ssh.execCommand('docker container ls --format  "{{ json . }}"', { cwd: '.'
             }).then((result) => {
-                console.log("Result available at " + new Date())
-                res.json(result.stdout);
+                var containers = [];
+                result.stdout.split("\n").forEach(container => {
+                    containers.push(JSON.parse(container));                    
+                });
+                console.log("Result available at " + new Date());
+                res.json(JSON.stringify(containers));
             });
+        })
+        .catch(function() {
+            res.sendStatus(500);
         });
 })
 

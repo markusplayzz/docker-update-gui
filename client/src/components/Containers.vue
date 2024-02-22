@@ -1,10 +1,13 @@
 <template>
   <h1>Containers</h1>
+  <p class="lg:w-6/12 lg:ml-[25%] font-bold">Last Pulled: {{ date }}</p>
   <div
     class="w-full shadow-lg rounded-lg mt-3 border border-gray-200 p-5 text-lg grid grid-cols-2 lg:w-6/12 lg:ml-[25%]"
+    v-for="(container, index) in containers"
+    :key="index"
   >
     <div>
-      <p class="font-bold mb-1">Nextcloud AIO</p>
+      <p class="font-bold mb-1">{{ container.Names }}</p>
       <p class="text-base">Update available</p>
       <div class="flex justify-start text-base">
         <p class="text-red-600 mr-2">1.0.0</p>
@@ -22,6 +25,7 @@
     </div>
   </div>
 
+  <!--
   <div
     class="w-full shadow-lg rounded-lg mt-3 border border-gray-200 p-5 text-lg grid grid-cols-2 lg:w-6/12 lg:ml-[25%]"
   >
@@ -32,11 +36,52 @@
         <p class="text-green-600">2.1.0</p>
       </div>
     </div>
-  </div>
+  </div>-->
 </template>
 
 <script lang="ts">
 export default {
-  name: 'Containers'
+  name: 'Containers',
+  data() {
+    return {
+      loading: true as boolean,
+      containers: [] as any[],
+      date: '' as string,
+      polling: 0 as number
+    }
+  },
+  async mounted() {
+    if (localStorage.getItem('containers') !== null) {
+      this.containers = JSON.parse(localStorage.getItem('containers')!)
+      this.date = localStorage.getItem('containersDate')!
+    } else {
+      await this.getContainers()
+    }
+    this.loading = false
+    this.pollData()
+  },
+  methods: {
+    pollData() {
+      console.log('Started status polling')
+      this.polling = setInterval(() => {
+        this.getContainers()
+      }, 60000)
+    },
+
+    async getContainers() {
+      this.containers = JSON.parse((await axios.get('http://192.168.115.106/api/containers')).data)
+      localStorage.setItem('containers', JSON.stringify(this.containers))
+      this.date = moment().format('HH:mm:ss DD/MM/YYYY')
+      localStorage.setItem('containersDate', this.date)
+    }
+  },
+  beforeDestroy() {
+    clearInterval(this.polling)
+  }
 }
+</script>
+
+<script setup lang="ts">
+import axios from 'axios'
+import moment from 'moment'
 </script>
