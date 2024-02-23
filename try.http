@@ -6,3 +6,6 @@ GET http://192.168.115.106/api/images
 
 ### docker
 https://hub.docker.com/v2/namespaces/jc21/repositories/nginx-proxy-manager/tags/latest
+
+### availible updates
+GET http://192.168.115.106/api/updates

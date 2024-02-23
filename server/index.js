@@ -1,6 +1,10 @@
 // app
 const express = require('express');
+const cors = require('cors');
 const app = express();
+app.disable('x-powered-by');
+app.disable('etag');
+app.use(cors());
 const port = 3000;
 const axios = require('axios');
 
