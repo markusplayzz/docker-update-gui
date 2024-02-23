@@ -1,13 +1,15 @@
 <template>
   <h1>Containers</h1>
-  <p class="lg:w-6/12 lg:ml-[25%] font-bold">Last Pulled: {{ date }}</p>
+  <p class="lg:w-6/12 lg:ml-[25%] font-bold" v-if="date !== ''">Last Poll: {{ date }}</p>
   <div
-    class="w-full shadow-lg rounded-lg mt-3 border border-gray-200 p-5 text-lg grid grid-cols-2 lg:w-6/12 lg:ml-[25%]"
+    class="w-full shadow-lg rounded-lg mt-3 border border-gray-200 p-5 grid grid-cols-2 lg:w-6/12 lg:ml-[25%]"
     v-for="(container, index) in containers"
     :key="index"
   >
     <div>
-      <p class="font-bold mb-1">{{ container.Names }}</p>
+      <p class="font-bold mb-1 text-lg">{{ container.Names }}</p>
+      <p>ID: {{ container.ID }}</p>
+      <p>Image: {{ container.Image }}</p>
       <p class="text-base">Update available</p>
       <div class="flex justify-start text-base">
         <p class="text-red-600 mr-2">1.0.0</p>
@@ -46,6 +48,7 @@ export default {
     return {
       loading: true as boolean,
       containers: [] as any[],
+      images: [] as any[],
       date: '' as string,
       polling: 0 as number
     }
@@ -53,9 +56,11 @@ export default {
   async mounted() {
     if (localStorage.getItem('containers') !== null) {
       this.containers = JSON.parse(localStorage.getItem('containers')!)
+      this.images = JSON.parse(localStorage.getItem('images')!)
       this.date = localStorage.getItem('containersDate')!
     } else {
       await this.getContainers()
+      await this.getImages()
     }
     this.loading = false
     this.pollData()
@@ -65,15 +70,23 @@ export default {
       console.log('Started status polling')
       this.polling = setInterval(() => {
         this.getContainers()
+        this.getImages()
       }, 60000)
     },
 
     async getContainers() {
-      this.containers = JSON.parse((await axios.get('http://192.168.115.106/api/containers')).data)
+      this.containers = (await axios.get('http://192.168.115.106/api/containers')).data
       localStorage.setItem('containers', JSON.stringify(this.containers))
       this.date = moment().format('HH:mm:ss DD/MM/YYYY')
       localStorage.setItem('containersDate', this.date)
-    }
+    },
+
+    async getImages() {
+      this.images = (await axios.get('http://192.168.115.106/api/images')).data
+      localStorage.setItem('images', JSON.stringify(this.images))
+      //this.date = moment().format('HH:mm:ss DD/MM/YYYY')
+      //localStorage.setItem('containersDate', this.date)
+    },
   },
   beforeDestroy() {
     clearInterval(this.polling)
