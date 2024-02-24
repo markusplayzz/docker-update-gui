@@ -100,7 +100,7 @@ app.get('//updates', async (req, res) => {
 
                 array.push(currentData);
             }
-            res.json(array);
+            res.json(array.reverse());
         })
         .catch(function() {
             res.sendStatus(500);
