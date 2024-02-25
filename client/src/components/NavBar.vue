@@ -5,7 +5,19 @@
         to="/"
         class="text-xl mr-10 p-1 text-white hover:text-blue-300 transition-all"
         :class="$route.name === 'home' ? 'underline' : 'no-underline'"
+        >Updates</RouterLink
+      >
+      <RouterLink
+        to="/containers"
+        class="text-xl mr-10 p-1 text-white hover:text-blue-300 transition-all"
+        :class="$route.name === 'containers' ? 'underline' : 'no-underline'"
         >Containers</RouterLink
+      >
+      <RouterLink
+        to="/images"
+        class="text-xl mr-10 p-1 text-white hover:text-blue-300 transition-all"
+        :class="$route.name === 'images' ? 'underline' : 'no-underline'"
+        >Images</RouterLink
       >
       <RouterLink
         to="/settings"

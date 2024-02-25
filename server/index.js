@@ -22,19 +22,19 @@ app.get('/', (req, res) => {
 app.get('//containers', async (req, res) => {
     var array = await database.getDockerContainers();
 
-    res.json(array);
+    res.json(array.reverse());
 });
 
 app.get('//images', async (req, res) => {
     var array = await database.getDockerImages();
 
-    res.json(array);
+    res.json(array.reverse());
 });
 
 app.get('//updates', async (req, res) => {
     var array = await database.getDockerContainerUpdates();
 
-    res.json(array);
+    res.json(array.reverse());
 });
 
 app.listen(port, () => {

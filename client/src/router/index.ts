@@ -11,6 +11,22 @@ const router = createRouter({
       component: HomeView
     },
     {
+      path: '/containers',
+      name: 'containers',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/ContainersView.vue')
+    },
+    {
+      path: '/images',
+      name: 'images',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/ImagesView.vue')
+    },
+    {
       path: '/settings',
       name: 'settings',
       // route level code-splitting
@@ -21,10 +37,10 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       name: 'notfound',
-      component: NotFoundView
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
+      component: () => import('../views/NotFoundView.vue')
     }
   ]
 })

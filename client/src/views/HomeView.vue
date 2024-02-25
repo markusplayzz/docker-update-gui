@@ -1,20 +1,20 @@
 <template>
-  <h1>Containers</h1>
+  <h1>Updates</h1>
   <p class="lg:w-6/12 lg:ml-[25%] font-bold text-lg" v-if="date !== ''">Last Poll: {{ date }}</p>
   <div
-    class="w-full shadow-lg rounded-lg mt-3 border border-gray-200 p-5 grid grid-cols-2 lg:w-6/12 lg:ml-[25%]"
+    class="w-full shadow-lg rounded-lg mt-3 border border-gray-200 p-5 grid grid-cols-2 lg:w-6/12 lg:ml-[25%] lg:grid-cols-3"
     v-for="(update, index) in updates"
     :key="index"
   >
-    <div>
-      <p class="font-bold mb-1 text-lg">{{ update.Name }}</p>
-      <p><span class="font-bold">Image:</span> {{ update.Image }}</p>
-      <p class="text-base" v-if="update.UpdateAvailable === true">Update available</p>
-      <p><span class="font-bold">Local Etag:</span> {{ update.LocalEtag }}</p>
-      <p><span class="font-bold">Remote Etag:</span> {{ update.RemoteEtag }}</p>
+    <div class="col-span-2 break-words">
+      <p class="font-bold mb-1 text-lg">{{ update.name }}</p>
+      <p class="text-base font-bold text-red-600" v-if="update.update_available === 1">Update available</p>
+      <p><span class="font-bold">Image:</span> <code>{{ update.image }}</code></p>
+      <p><span class="font-bold">Local Etag:</span> <code>{{ update.local_etag }}</code></p>
+      <p><span class="font-bold">Remote Etag:</span> <code>{{ update.remote_etag }}</code></p>
     </div>
 
-    <div class="flex flex-row items-center justify-end" v-if="update.UpdateAvailable === true">
+    <div class="flex flex-row items-center col-span-2 justify-center lg:justify-end lg:col-span-1" v-if="update.update_available === 1">
       <button
         class="rounded-full border bg-green-500 border-green-500 p-3 mr-2 hover:bg-green-300 transition-all"
       >
@@ -22,24 +22,11 @@
       </button>
     </div>
   </div>
-
-  <!--
-  <div
-    class="w-full shadow-lg rounded-lg mt-3 border border-gray-200 p-5 text-lg grid grid-cols-2 lg:w-6/12 lg:ml-[25%]"
-  >
-    <div>
-      <p class="font-bold mb-1">Bitwarden Password Manager</p>
-      <p class="text-base">All updates installed</p>
-      <div class="flex justify-start text-base">
-        <p class="text-green-600">2.1.0</p>
-      </div>
-    </div>
-  </div>-->
 </template>
 
 <script lang="ts">
 export default {
-  name: 'Containers',
+  name: 'Updates',
   data() {
     return {
       loading: true as boolean,
