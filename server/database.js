@@ -20,14 +20,30 @@ async function getDockerContainerUpdate(id) {
     return rows;
 }
 
-async function createDockerContainer(name, image) {
+async function createDockerUpdateContainer(name, image) {
     await pool.query("INSERT INTO docker_container_updates (name, image) VALUES (?, ?)", [name, image]);
+}
+
+async function changeDockerUpdateEtags(id, localEtag, remoteEtag) {
+    await pool.query(`
+    UPDATE docker_container_updates
+    SET local_etag = ?, remote_etag = ?
+    WHERE id = ?;
+    `, [localEtag, remoteEtag, id]);
+}
+
+async function deleteDockerUpdateContainer(id) {
+    await pool.query(`
+    DELETE FROM docker_container_updates
+    WHERE id = ?;
+    `, [id]);
 }
 
 async function main() {
     var rows = await getDockerContainerUpdates();
     console.log(rows);
-    await createDockerContainer("test", "testImage");
+    await changeDockerUpdateEtags(1, "20", "1250");
+    await deleteDockerUpdateContainer(2);
     rows = await getDockerContainerUpdates();
     console.log(rows);
 }
