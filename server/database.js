@@ -10,42 +10,54 @@ const pool = mysql.createPool({
     database: process.env.MYSQL_DATABASE
 }).promise();
 
-async function getDockerContainerUpdates() {
-    const [rows] = await pool.query("SELECT * FROM docker_container_updates");
-    return rows;
-}
+module.exports = {
+    getDockerContainerUpdates: async function () {
+        const [rows] = await pool.query(`
+        SELECT name, image, update_available, local_etag, remote_etag FROM docker_container_updates
+        `);
+        return rows;
+    },
 
-async function getDockerContainerUpdate(id) {
-    const [rows] = await pool.query("SELECT * FROM docker_container_updates WHERE id = ?", [id]);
-    return rows;
-}
+    getDockerContainers: async function() {
+        const [rows] = await pool.query(`
+        SELECT name FROM docker_container_updates;
+        `);
+        return rows;
+    },
 
-async function createDockerUpdateContainer(name, image) {
-    await pool.query("INSERT INTO docker_container_updates (name, image) VALUES (?, ?)", [name, image]);
-}
+    getDockerImages: async function() {
+        const [rows] = await pool.query(`
+        SELECT image FROM docker_container_updates;
+        `);
+        return rows;
+    },
+    
+    createDockerUpdateContainer: async function (name, image) {
+        await pool.query(`
+        INSERT INTO docker_container_updates (name, image)
+        VALUES (?, ?)
+        `, [name, image]);
+    },
+    
+    changeDockerUpdateEtags: async function (name, local_etag, remote_etag, update_available) {
+        await pool.query(`
+        UPDATE docker_container_updates
+        SET local_etag = ?, remote_etag = ?, update_available = ?
+        WHERE name = ?;
+        `, [local_etag, remote_etag, update_available, name]);
+    },
+    
+    deleteDockerUpdateContainer: async function (id) {
+        await pool.query(`
+        DELETE FROM docker_container_updates
+        WHERE id = ?;
+        `, [id]);
+    },
 
-async function changeDockerUpdateEtags(id, localEtag, remoteEtag) {
-    await pool.query(`
-    UPDATE docker_container_updates
-    SET local_etag = ?, remote_etag = ?
-    WHERE id = ?;
-    `, [localEtag, remoteEtag, id]);
+    deleteDockerUpdateContainerByName: async function(name) {
+        await pool.query(`
+        DELETE FROM docker_container_updates
+        WHERE name = ?;
+        `, [name]);
+    }
 }
-
-async function deleteDockerUpdateContainer(id) {
-    await pool.query(`
-    DELETE FROM docker_container_updates
-    WHERE id = ?;
-    `, [id]);
-}
-
-async function main() {
-    var rows = await getDockerContainerUpdates();
-    console.log(rows);
-    await changeDockerUpdateEtags(1, "20", "1250");
-    await deleteDockerUpdateContainer(2);
-    rows = await getDockerContainerUpdates();
-    console.log(rows);
-}
-
-main();

@@ -7,6 +7,8 @@ app.disable('etag');
 app.use(cors());
 const port = 3000;
 const axios = require('axios');
+const cron = require('node-cron');
+const database = require('./database.js');
 
 // node-ssh
 const { NodeSSH } = require('node-ssh');
@@ -18,93 +20,21 @@ app.get('/', (req, res) => {
 });
 
 app.get('//containers', async (req, res) => {
-    await ssh
-        .connect({
-            host: '10.0.0.71',
-            username: 'markus',
-            privateKeyPath: '/home/markus/.ssh/id_rsa'
-        })
-        .then(function() {
-            ssh.execCommand('docker container ls --format  "{{ json . }}"', { cwd: '.'
-            }).then((result) => {
-                var containers = [];
-                result.stdout.split("\n").forEach(container => {
-                    containers.push(JSON.parse(container));                    
-                });
-                console.log("Result available at " + new Date() + req.ip);
-                res.json(containers);
-            });
-        })
-        .catch(function() {
-            res.sendStatus(500);
-        });
+    var array = await database.getDockerContainers();
+
+    res.json(array);
 });
 
 app.get('//images', async (req, res) => {
-    await ssh
-        .connect({
-            host: '10.0.0.71',
-            username: 'markus',
-            privateKeyPath: '/home/markus/.ssh/id_rsa'
-        })
-        .then(function() {
-            ssh.execCommand('docker image ls --format  "{{ json . }}"', { cwd: '.'
-            }).then((result) => {
-                var images = [];
-                result.stdout.split("\n").forEach(image => {
-                    images.push(JSON.parse(image));                    
-                });
-                console.log("Result available at " + new Date() + req.ip);
-                res.json(images);
-            });
-        })
-        .catch(function() {
-            res.sendStatus(500);
-        });
+    var array = await database.getDockerImages();
+
+    res.json(array);
 });
 
 app.get('//updates', async (req, res) => {
-    var array = [];
-    var currentData, localEtag = "", remoteEtag = "", resultStdout = "", dockerHubResponse, updateAvailable;
-    await ssh
-        .connect({
-            host: '10.0.0.71',
-            username: 'markus',
-            privateKeyPath: '/home/markus/.ssh/id_rsa'
-        })
-        .then(async function() {
-            await ssh.execCommand('docker container ls --format \'{ "Name": {{ json .Names }}, "Image": {{ json .Image }} }\'', { cwd: '.'
-            }).then((result) => {
-                resultStdout = result.stdout;
-            });
+    var array = await database.getDockerContainerUpdates();
 
-            for (const containerData of resultStdout.split("\n")) {
-                currentData = JSON.parse(containerData);
-                
-                await ssh.execCommand(`docker image inspect ${currentData.Image} --format '{{ json .RepoDigests }}'`, { cwd: '.'}).then((result2) => {
-                    localEtag = result2.stdout.replace(/.*@/g, '').replace(/"]/g, '');
-                });
-
-                dockerHubResponse = await axios.get(`https://hub.docker.com/v2/namespaces/${currentData.Image.replace(/\/.*/g, "")}/repositories/${currentData.Image.replace(/.*\//g, "").replace(/:.*/g, "")}/tags/latest`);
-                remoteEtag = dockerHubResponse.data.digest;
-
-                if (localEtag !== remoteEtag) {
-                    updateAvailable = true;
-                } else {
-                    updateAvailable = false;
-                }
-
-                currentData.UpdateAvailable = updateAvailable;
-                currentData.LocalEtag = localEtag;
-                currentData.RemoteEtag = remoteEtag;
-
-                array.push(currentData);
-            }
-            res.json(array.reverse());
-        })
-        .catch(function() {
-            res.sendStatus(500);
-        });
+    res.json(array);
 });
 
 app.listen(port, () => {
@@ -114,3 +44,110 @@ app.listen(port, () => {
 function access(host) {    
     console.log(`API Access from ${host}`);
 }
+
+async function compareDockerAndDatabaseUpdateEntries() {
+    const databaseEntries = await database.getDockerContainerUpdates();
+    const dockerEntries = await getDockerContainerUpdateEntries();
+    var dockerMissing = [], databaseMissing = [];
+
+    // check for new docker containers
+    for (var i = 0; i < dockerEntries.length; i++) {
+        if (!databaseEntries.some(e => e.name === dockerEntries[i].name)) {
+            databaseMissing.push(dockerEntries[i]);
+        }
+    }
+
+    // check if docker containers are deleted
+    for (var i = 0; i < databaseEntries.length; i++) {
+        if (!dockerEntries.some(e => e.name === databaseEntries[i].name)) {
+            dockerMissing.push(databaseEntries[i]);
+        }
+    }
+
+    // add new docker containers to db
+    for (var i = 0; i < databaseMissing.length; i++) {
+        await database.createDockerUpdateContainer(databaseMissing[i].name, databaseMissing[i].image);
+    }
+
+    // delete old docker entries from db
+    for (var i = 0; i < dockerMissing.length; i++) {
+        await database.deleteDockerUpdateContainerByName(dockerMissing[i].name);
+    }
+}
+
+async function getDockerContainerUpdateEntries() {
+    var array = [], resultStdout;
+
+    await ssh
+        .connect({
+            host: process.env.SSH_HOST,
+            username: process.env.SSH_USER,
+            privateKeyPath: process.env.SSH_PRIVATEKEYPATH
+        })
+        .then(async function() {
+            await ssh.execCommand('docker container ls --format \'{ "name": {{ json .Names }}, "image": {{ json .Image }} }\'', { cwd: '.'
+            }).then((result) => {
+                resultStdout = result.stdout;
+            });
+
+            for (const containerData of resultStdout.split("\n")) {
+                array.push(JSON.parse(containerData));
+            }
+        })
+        .catch(function() {
+            console.log("SSH Error");
+        });
+
+    return array;
+}
+
+async function checkForImageUpdates() {
+    var local_etag, remote_etag, update_available, dockerHubResponse, changes = false;
+    const dockerContainerUpdateEntries = await database.getDockerContainerUpdates();
+    
+    await ssh
+        .connect({
+            host: process.env.SSH_HOST,
+            username: process.env.SSH_USER,
+            privateKeyPath: process.env.SSH_PRIVATEKEYPATH
+        })
+        .then(async function() {
+            for (var i = 0; i < dockerContainerUpdateEntries.length; i++) {
+                await ssh.execCommand(`docker image inspect ${dockerContainerUpdateEntries[i].image} --format '{{ json .RepoDigests }}'`, { cwd: '.'}).then((result) => {
+                    local_etag = result.stdout.replace(/.*@/g, '').replace(/"]/g, '');
+                });
+
+                dockerHubResponse = await axios.get(`https://hub.docker.com/v2/namespaces/${dockerContainerUpdateEntries[i].image.replace(/\/.*/g, "")}/repositories/${dockerContainerUpdateEntries[i].image.replace(/.*\//g, "").replace(/:.*/g, "")}/tags/latest`);
+                remote_etag = dockerHubResponse.data.digest;
+
+                if (local_etag !== remote_etag) {
+                    update_available = true;
+                } else {
+                    update_available = false;
+                }
+                
+                if (dockerContainerUpdateEntries[i].local_etag !== local_etag || dockerContainerUpdateEntries[i].remote_etag !== remote_etag || dockerContainerUpdateEntries[i].update_available !== update_available) {
+                    await database.changeDockerUpdateEtags(dockerContainerUpdateEntries[i].name, local_etag, remote_etag, update_available);
+                    changes = true;
+                }
+
+                if (changes === true) {
+                    await checkForImageUpdates();
+                }
+            }
+        })
+        .catch(function() {
+            console.log("SSH Error");
+        });
+}
+
+// Compares the database with docker, every 10 minutes and in the hours 4-3
+cron.schedule('*/10 4-23,0-2 * * *', async() => {
+    await compareDockerAndDatabaseUpdateEntries();
+});
+
+// Checks if there is an update for the image availible, every day at 3 o'clock
+cron.schedule('0 3 * * *', async() => {
+    await compareDockerAndDatabaseUpdateEntries();
+    await checkForImageUpdates();
+});
