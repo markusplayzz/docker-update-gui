@@ -8,13 +8,24 @@
   >
     <div class="col-span-2 break-words">
       <p class="font-bold mb-1 text-lg">{{ update.name }}</p>
-      <p class="text-base font-bold text-red-600" v-if="update.update_available === 1">Update available</p>
-      <p><span class="font-bold">Image:</span> <code>{{ update.image }}</code></p>
-      <p><span class="font-bold">Local Etag:</span> <code>{{ update.local_etag }}</code></p>
-      <p><span class="font-bold">Remote Etag:</span> <code>{{ update.remote_etag }}</code></p>
+      <p class="text-base font-bold text-red-600" v-if="update.update_available === 1">
+        Update available
+      </p>
+      <p>
+        <span class="font-bold">Image:</span> <code>{{ update.image }}</code>
+      </p>
+      <p>
+        <span class="font-bold">Local Etag:</span> <code>{{ update.local_etag }}</code>
+      </p>
+      <p>
+        <span class="font-bold">Remote Etag:</span> <code>{{ update.remote_etag }}</code>
+      </p>
     </div>
 
-    <div class="flex flex-row items-center col-span-2 justify-center lg:justify-end lg:col-span-1" v-if="update.update_available === 1">
+    <div
+      class="flex flex-row items-center col-span-2 justify-center lg:justify-end lg:col-span-1"
+      v-if="update.update_available === 1"
+    >
       <button
         class="rounded-full border bg-green-500 border-green-500 p-3 mr-2 hover:bg-green-300 transition-all"
       >
@@ -58,7 +69,7 @@ export default {
       localStorage.setItem('updates', JSON.stringify(this.updates))
       this.date = moment().format('HH:mm:ss DD/MM/YYYY')
       localStorage.setItem('refreshDate', this.date)
-    },
+    }
   },
   beforeDestroy() {
     clearInterval(this.polling)

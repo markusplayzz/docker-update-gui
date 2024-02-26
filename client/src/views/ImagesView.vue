@@ -1,15 +1,15 @@
 <template>
-    <h1>Images</h1>
-    <p class="lg:w-6/12 lg:ml-[25%] font-bold text-lg" v-if="date !== ''">Last Poll: {{ date }}</p>
-    <div
-        class="w-full shadow-lg rounded-lg mt-3 border border-gray-200 p-5 grid lg:w-6/12 lg:ml-[25%]"
-        v-for="(image, index) in images"
-        :key="index"
-    >
-        <div class="col-span-2 break-words">
-            <p class="font-bold mb-1 text-lg">{{ image.image }}</p>
-        </div>
+  <h1>Images</h1>
+  <p class="lg:w-6/12 lg:ml-[25%] font-bold text-lg" v-if="date !== ''">Last Poll: {{ date }}</p>
+  <div
+    class="w-full shadow-lg rounded-lg mt-3 border border-gray-200 p-5 grid lg:w-6/12 lg:ml-[25%]"
+    v-for="(image, index) in images"
+    :key="index"
+  >
+    <div class="col-span-2 break-words">
+      <p class="font-bold mb-1 text-lg">{{ image.image }}</p>
     </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -46,7 +46,7 @@ export default {
       localStorage.setItem('images', JSON.stringify(this.images))
       this.date = moment().format('HH:mm:ss DD/MM/YYYY')
       localStorage.setItem('refreshDate', this.date)
-    },
+    }
   },
   beforeDestroy() {
     clearInterval(this.polling)
