@@ -43,7 +43,8 @@ export default {
       loading: true as boolean,
       updates: [] as any[],
       date: '' as string,
-      polling: 0 as number
+      polling: 0 as number,
+      baseUrl: window.location.origin as string
     }
   },
   async mounted() {
@@ -65,7 +66,7 @@ export default {
     },
 
     async getUpdates() {
-      this.updates = (await axios.get('http://192.168.115.106/api/updates')).data
+      this.updates = (await axios.get(`${this.baseUrl}/api/updates`)).data
       localStorage.setItem('updates', JSON.stringify(this.updates))
       this.date = moment().format('HH:mm:ss DD/MM/YYYY')
       localStorage.setItem('refreshDate', this.date)

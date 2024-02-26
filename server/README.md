@@ -15,3 +15,19 @@ Please note that it's essential for this app to run to create an .env file with 
 - `SSH_PRIVATEKEYPATH` -> The location of the private-key for the login on the docker server, passwords are not allowed (e.g. `/home/USERNAME/.ssh/id_rsa`)
 
 **IMPORTANT:** Never ever push this `.env` file to github or share it with others, this file is intended for your environment and the information it provides is not considered public!
+
+## MYSQL-Server
+
+This application requires a MYSQL-Server with an own database and user.
+
+### Installation
+
+- Run `sudo apt update` in your bash
+- Run `sudo apt install mariadb`
+- Run the secure installation: `sudo mysql_secure_installation`
+- Open the mysql dialog as root: `mysql -u root -p`
+- Create a user for the application: `CREATE USER '<USERNAME>'@'localhost' IDENTIFIED BY '<PASSWORD>';`
+- Create a database: `CREATE DATABASE <DATABASE_NAME>;`
+- Use this database: `USE <DATABASE_NAME>;`
+- Create a table: `CREATE TABLE ...` (sql for the table and database can be found [here](scheme.sql))
+- Grant the created user privileges on the database: `GRANT ALL PRIVILEGES ON <DATABASE_NAME>.* TO '<USERNAME>'@'localhost';`
