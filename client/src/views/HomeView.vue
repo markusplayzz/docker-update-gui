@@ -48,33 +48,15 @@ export default {
     }
   },
   async mounted() {
-    if (localStorage.getItem('updates') !== null) {
-      this.updates = JSON.parse(localStorage.getItem('updates')!)
-      this.date = localStorage.getItem('refreshDate')!
-    } else {
-      await this.getUpdates()
-    }
+    await this.getUpdates()
     this.loading = false
-    this.pollData()
   },
   methods: {
-    pollData() {
-      console.log('Started status polling')
-      this.polling = setInterval(() => {
-        this.getUpdates()
-      }, 60000)
-    },
-
     async getUpdates() {
       this.updates = (await axios.get(`${this.baseUrl}/api/updates`)).data
-      localStorage.setItem('updates', JSON.stringify(this.updates))
       this.date = moment().format('HH:mm:ss DD/MM/YYYY')
-      localStorage.setItem('refreshDate', this.date)
     }
   },
-  beforeDestroy() {
-    clearInterval(this.polling)
-  }
 }
 </script>
 

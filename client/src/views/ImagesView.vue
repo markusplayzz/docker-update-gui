@@ -25,33 +25,15 @@ export default {
     }
   },
   async mounted() {
-    if (localStorage.getItem('images') !== null) {
-      this.images = JSON.parse(localStorage.getItem('images')!)
-      this.date = localStorage.getItem('refreshDate')!
-    } else {
-      await this.getImages()
-    }
+    await this.getImages()
     this.loading = false
-    this.pollData()
   },
   methods: {
-    pollData() {
-      console.log('Started status polling')
-      this.polling = setInterval(() => {
-        this.getImages()
-      }, 60000)
-    },
-
     async getImages() {
       this.images = (await axios.get(`${this.baseUrl}/api/updates`)).data
-      localStorage.setItem('images', JSON.stringify(this.images))
       this.date = moment().format('HH:mm:ss DD/MM/YYYY')
-      localStorage.setItem('refreshDate', this.date)
     }
   },
-  beforeDestroy() {
-    clearInterval(this.polling)
-  }
 }
 </script>
 

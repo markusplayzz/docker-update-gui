@@ -25,33 +25,15 @@ export default {
     }
   },
   async mounted() {
-    if (localStorage.getItem('containers') !== null) {
-      this.containers = JSON.parse(localStorage.getItem('containers')!)
-      this.date = localStorage.getItem('refreshDate')!
-    } else {
-      await this.getContainers()
-    }
+    await this.getContainers()
     this.loading = false
-    this.pollData()
   },
   methods: {
-    pollData() {
-      console.log('Started status polling')
-      this.polling = setInterval(() => {
-        this.getContainers()
-      }, 60000)
-    },
-
     async getContainers() {
       this.containers = (await axios.get(`${this.baseUrl}/api/updates`)).data
-      localStorage.setItem('containers', JSON.stringify(this.containers))
       this.date = moment().format('HH:mm:ss DD/MM/YYYY')
-      localStorage.setItem('refreshDate', this.date)
     }
   },
-  beforeDestroy() {
-    clearInterval(this.polling)
-  }
 }
 </script>
 
